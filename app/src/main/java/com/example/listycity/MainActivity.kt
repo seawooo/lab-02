@@ -30,7 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.listycity.ui.theme.ListyCityTheme
 import org.w3c.dom.Text
-
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,9 +90,10 @@ fun CityListScreen(
                 }
                 Button(
                     onClick = {
-                        if (newCityName.isNotBlank()) {
-                            onAddCity(newCityName)
-                            newCityName = ""
+                        //? means proceed if not Null, .let passes selectedCity as city into the function
+                        selectedCity?.let { city ->
+                            onRemoveCity(city)
+                            selectedCity = null
                         }
                     }
                 ) {
@@ -105,19 +108,29 @@ fun CityListScreen(
 
     LazyColumn(modifier = modifier.fillMaxSize()) {
         items(cities) { city ->
-            CityRow(city = city)
+            CityRow(
+                city = city,
+                isSelected = city == selectedCity,
+                onSelect = { selectedCity = city }
+            )
         }
     }
     }
 }
 
 @Composable
-fun CityRow(city: String) {
+fun CityRow(
+    city: String,
+    isSelected: Boolean,
+    onSelect: () -> Unit
+) {
     Text(
         text = city,
         fontSize = 28.sp,
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onSelect() } //set city as selected city
+            .background(if (isSelected) Color.LightGray else Color.Transparent)
             .padding(horizontal = 18.dp, vertical = 14.dp)
     )
 }
