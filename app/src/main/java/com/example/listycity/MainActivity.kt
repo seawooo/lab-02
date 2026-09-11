@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,6 +42,7 @@ class MainActivity : ComponentActivity() {
                     CityListScreen(
                         cities = cityRepository.cities,
                         onAddCity = { cityRepository.addCity(it) },
+                        onRemoveCity = { cityRepository.removeCity(it) },
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -53,9 +55,13 @@ class MainActivity : ComponentActivity() {
 fun CityListScreen(
     cities: List<String>,
     onAddCity: (String) -> Unit,
+    onRemoveCity: (String) -> Unit,
     modifier: Modifier = Modifier
 ){
     var newCityName by remember { mutableStateOf("") }
+    //introduced to the idea of <String?> by Claude when prompted how to have a variable that can be
+    //string or null
+    var selectedCity by remember { mutableStateOf<String?>(null) }
 
     Column(modifier = modifier.fillMaxSize()) {
         Row(modifier = Modifier.padding(all = 16.dp)) {
@@ -64,21 +70,38 @@ fun CityListScreen(
                 onValueChange = { newCityName = it },
                 label = { Text("City name") },
                 modifier = Modifier.weight(1f)
+
             )
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            Button(
-                onClick = {
-                    if (newCityName.isNotBlank()) {
-                        onAddCity(newCityName)
-                        newCityName = ""
+            Column(modifier = Modifier) {
+                Button(
+                    onClick = {
+                        if (newCityName.isNotBlank()) {
+                            onAddCity(newCityName)
+                            newCityName = ""
+                        }
                     }
+                ) {
+                    Text("Add City")
                 }
-            ) {
-                Text("Add City")
+                Button(
+                    onClick = {
+                        if (newCityName.isNotBlank()) {
+                            onAddCity(newCityName)
+                            newCityName = ""
+                        }
+                    }
+                ) {
+                    Text("Delete City")
+                }
             }
+
+
         }
+
+
 
     LazyColumn(modifier = modifier.fillMaxSize()) {
         items(cities) { city ->
@@ -112,6 +135,10 @@ class CityRepository {
         get() = _cities
     fun addCity(city: String) {
         _cities.add(city)
+    }
+
+    fun removeCity(city: String) {
+        _cities.remove(city)
     }
 }
 
